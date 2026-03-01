@@ -18,12 +18,18 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.environment || 'sushi' }}
     steps:
-      - uses: actions/checkout@v6
-      - uses: Mercymeilya/last-workflow-status@v0.3.3
+      - uses: actions/checkout@v3
+      - name: Check last workflow status
         id: last_status
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/setup-node@v6.2.0
+        run: |
+          LAST_STATUS=$(curl -s \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/schedule.yml/runs?per_page=2" \
+            | jq -r '.workflow_runs[1].conclusion')
+          echo "Last workflow conclusion: $LAST_STATUS"
+          echo "last_status=$LAST_STATUS" >> $GITHUB_OUTPUT
+      - uses: actions/setup-node@v3
         if: steps.last_status.outputs.last_status != 'success'
         with:
           node-version-file: .node-version

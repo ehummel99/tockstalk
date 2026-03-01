@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.environment || 'sushi' }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Check last workflow status
         id: last_status
         run: |
@@ -29,7 +29,7 @@ jobs:
             | jq -r '.workflow_runs[1].conclusion')
           echo "Last workflow conclusion: $LAST_STATUS"
           echo "last_status=$LAST_STATUS" >> $GITHUB_OUTPUT
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         if: steps.last_status.outputs.last_status != 'success'
         with:
           node-version-file: .node-version
